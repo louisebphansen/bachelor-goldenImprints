@@ -1,0 +1,7 @@
+features_test.npy
+features_train.npy
+wiki_test/
+wiki_train/
+wikiart_10k/
+wikiart_50k/
+wikiart_2200/
