@@ -1,5 +1,12 @@
+# remember to add package versions !!
 pandas
 numpy
 matplotlib
 scikit-learn
 tensorflow-cpu
+timm 
+datasets[vision]
+keras
+opencv-python-headless
+torch
+tqdm
