@@ -25,7 +25,7 @@ def argument_parser():
 
 def load_iter_hf_data(dataset_name):
 
-    hf_data = datasets.load_dataset(dataset_name, split='train', streaming=True)
+    hf_data = datasets.load_dataset(dataset_name, split='train', streaming=True).take(10)
 
     def gen_from_iterable_dataset(iterable_ds):
         yield from iterable_ds
@@ -36,7 +36,7 @@ def load_iter_hf_data(dataset_name):
 
 def split_data(ds, train_ds_name, test_ds_name):
 
-    ds_split = ds.train_test_split(test_size=test_size, seed=seed)
+    ds_split = ds.train_test_split(test_size=0.2, seed=2830)
     ds_train = ds_split['train']
     ds_test = ds_split['test']
 
