@@ -55,7 +55,7 @@ def features_from_dataset(dataset, img_size, model):
     embeddings = []
 
     # loop over each image in the dataset
-    for i in tqdm(range((len(subset_subset))), desc=f"Extracting features from {dataset}"):
+    for i in tqdm(range((len(dataset))), desc=f"Extracting features from {dataset}"):
         image = dataset[i]['image']
         # extract feature embeddings
         feature = feature_extraction(image, img_size, model)
