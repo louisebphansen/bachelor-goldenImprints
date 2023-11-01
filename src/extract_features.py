@@ -1,64 +1,75 @@
-# import
 import argparse
 import os 
+import time
 import timm
 import torch
 import datasets
-import numpy as np
 from tqdm import tqdm
-from tensorflow.keras.preprocessing.image import img_to_array
 
 # define argument parser
 def argument_parser():
 
     parser = argparse.ArgumentParser()
 
-    parser.add_argument('--pretrained_model', type=str, help= 'what type of pretrained model to use')
+    parser.add_argument('--pretrained_model', type=str, help= 'name of the pretrained model to use')
     parser.add_argument('--train_data', type=str, help='name of huggingface dataset to be used for training. must be in the /datasets folder')
     parser.add_argument('--test_data', type=str, help='name of huggingface dataset to be used for testing. must be in the /datasets folder')
     parser.add_argument('--feature_col_name', type=str, help='what the name of the new column in the dataset should be')
-    parser.add_argument('--new_traindata_name', type=str, help='what the train dataset with the new embeddings column shoukd be saved as')
-    parser.add_argument('--new_testdata_name', type=str, help='what the test dataset with the new embeddings column shoukd be saved as')
+    parser.add_argument('--new_traindata_name', type=str, help='what the train dataset with the new embeddings column shoukd be saved as. datasets cant overwrite themselves, so give a new name')
+    parser.add_argument('--new_testdata_name', type=str, help='what the test dataset with the new embeddings column shoukd be saved as. datasets cant overwrite themselves, so give a new name')
     
     args = vars(parser.parse_args())
     
     return args
 
+def load_data_from_desk(train_data, test_data):
 
-def feature_extraction(img, img_size, chosen_model):
+    path_to_train_ds = os.path.join('datasets', train_data)
+    path_to_test_ds = os.path.join('datasets', test_data)
+
+    ds_train = datasets.load_from_disk(path_to_train_ds)
+    ds_test = datasets.load_from_disk(path_to_test_ds)
+
+    return ds_train, ds_test
+
+def save_preprocessing_info(model, model_name):
+
+    data_config = timm.data.resolve_model_data_config(model)
+
+    transforms = timm.data.create_transform(**data_config, is_training=False)
+
+    # save transformations as a .txt file
+    transforms_str = str(transforms)
+
+    with open(f'preprocessing/{model_name}_transforms.txt', 'w') as f:
+        f.write(transforms_str)
     
-    # resize image to fit with model
-    img = img.resize((img_size, img_size))
-    # convert to np.array
-    img_array = img_to_array(img)
-    # expand dimensions (n_samples, 3, img_size, img_size)
-    expanded_img_array = np.expand_dims(img_array, axis=0)
-    # transpose array to fit PyTorch's format
-    array_transposed = np.transpose(expanded_img_array, (0, 3, 1, 2))
-    # normalize
-    preprocessed_img = (array_transposed/255.0)
-    # convert to torch
-    inp = torch.from_numpy(preprocessed_img)
-    # extract features from model
-    feature = chosen_model(inp)
-    # convert from torch to list
-    feature_list = feature.tolist()
+    return transforms
+
+def transform_and_extract(img, model, transforms):
+
+    # apply transformations, convert to tensor and extract features
+    features = model(transforms(img).unsqueeze(0)) # unsqueeze adds a dim so the shape is now (1, 3, img_size, img_size)
+
+    # convert from tensor to list
+    feature_list = features.tolist()
+
     # un-nest list
-    feature_list = feature_list[0]
+    feature_list_unnest = feature_list[0]
 
-    return feature_list
+    return feature_list_unnest
 
 
-def features_from_dataset(dataset, img_size, model):
+def features_from_dataset(dataset, model, transforms):
 
     # initialize empty list
     embeddings = []
 
     # loop over each image in the dataset
-    for i in tqdm(range(len(dataset)), desc=f"Extracting features from {dataset}"):
+    for i in tqdm(range(len(dataset)), desc="Extracting features from images"):
         image = dataset[i]['image']
         # extract feature embeddings
-        feature = feature_extraction(image, img_size, model)
+        feature = transform_and_extract(image, model, transforms)
         embeddings.append(feature)
 
     return embeddings
@@ -78,22 +89,32 @@ def main():
 
     # initialize model
     model = timm.create_model(args['pretrained_model'], pretrained=True, num_classes=0)
-    
-    # save input image size from pretrained model
-    img_size = model.default_cfg['input_size'][0]
+    model.eval()
+  
+    # load huggingface datasets from desk
+    train_ds, test_ds = load_data_from_desk(args['train_data'], args['test_data'])
 
-    path_to_train_ds = os.path.join('datasets', args['train_data'])
-    path_to_test_ds = os.path.join('datasets', args['test_data'])
-    
+    # save the preprocessing steps applied to the data
+    transforms = save_preprocessing_info(model, args['pretrained_model'])
+
+    # start timer
+    start_time = time.time()
+
     # extract features for training dataset
-    features_train = features_from_dataset(path_to_train_ds, img_size, model)
-    
+    features_train = features_from_dataset(train_ds, model, transforms)
+    end_time = time.time() - start_time
+
+    # save time as txt
+    model_name = args['pretrained_model']
+    with open(f'times/{model_name}_features_duration.txt', 'w') as f:
+        f.write(str(end_time))
+
     # extract features for test dataset
-    features_test =  features_from_dataset(path_to_test_ds, img_size, model)
+    features_test =  features_from_dataset(test_ds, model, transforms)
 
     # save new train and test-datasets with added embeddings columns
-    add_feature_column(path_to_test_ds, features_train, args['feature_col_name'], args['new_traindata_name'])
-    add_feature_column(path_to_test_ds, features_test, args['feature_col_name'], args['new_testdata_name'])
+    add_feature_column(train_ds, features_train, args['feature_col_name'], args['new_traindata_name'])
+    add_feature_column(test_ds, features_test, args['feature_col_name'], args['new_testdata_name'])
 
 if __name__ == '__main__':
    main()

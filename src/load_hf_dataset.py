@@ -17,6 +17,7 @@ def argument_parser():
     parser.add_argument('--huggingface_dataset', type=str, help='path to dataset on huggingface, e.g., huggan/wikiart')
     parser.add_argument('--train_ds_name', type=str, help= "what the name of the train data should be")
     parser.add_argument('--test_ds_name', type=str, help='what the name of the test dataset should be')
+    parser.add_argument('--seed', type=int, help='seed for the train/test split')
     
     args = vars(parser.parse_args())
     
@@ -25,7 +26,7 @@ def argument_parser():
 
 def load_iter_hf_data(dataset_name):
 
-    hf_data = datasets.load_dataset(dataset_name, split='train', streaming=True).take(10)
+    hf_data = datasets.load_dataset(dataset_name, split='train', streaming=True)
 
     def gen_from_iterable_dataset(iterable_ds):
         yield from iterable_ds
