@@ -195,3 +195,42 @@ def feature_extraction(img, img_size, chosen_model):
     feature_list = feature_list[0]
 
     return feature_list
+
+# compress the data using a simple encoder
+def compress_data(train_data, test_data, val_data, embedding_col, compressed_size, epochs):
+    # change this !
+    # define shape of input - the size of each embedding vector
+    inp_shape = len(train_data[0][embedding_col])
+
+    inp = Input(shape=(inp_shape,))
+    # define compressed layer - encoder
+    compressed = Dense(compressed_size, activation = 'relu')(inp)
+    # decode to input shape again
+    out = Dense(inp_shape, activation = 'relu')(compressed)
+    # define model
+    comp_model = Model(inputs=inp, outputs = out)
+
+    # compile model with optimizer and mean-squared error loss
+    comp_model.compile(optimizer='adam', loss='mse')
+
+    # fit models on embeddings
+    #comp_model.fit(ds[embedding_col], ds[embedding_col], epochs=epochs)
+
+    # get encoder only
+    encoder = Model(comp_model.input, comp_model.layers[-2].output)
+
+    # compress data
+    compressed_train = encoder.predict(train_data[embedding_col])
+    compressed_test = encoder.predict(test_data[embedding_col])
+    compressed_val = encoder.predict(val_data[embedding_col])
+
+    # add the compressed embeddings to a list
+    compressed_train_list = compressed_train.tolist()
+    compressed_test_list = compressed_test.tolist()
+    compressed_val_list = compressed_val.tolist()
+
+    new_train_ds = train_data.add_column(f'{embedding_col}_compressed', compressed_train_list)
+    new_test_ds = test_data.add_column(f'{embedding_col}_compressed', compressed_test_list)
+    new_val_ds = val_data.add_column(f'{embedding_col}_compressed', compressed_val_list)
+
+    return new_train_ds, new_test_ds, new_val_ds

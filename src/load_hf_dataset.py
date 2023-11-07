@@ -15,8 +15,7 @@ def argument_parser():
     parser = argparse.ArgumentParser()
 
     parser.add_argument('--huggingface_dataset', type=str, help='path to dataset on huggingface, e.g., huggan/wikiart')
-    parser.add_argument('--train_ds_name', type=str, help= "what the name of the train data should be")
-    parser.add_argument('--test_ds_name', type=str, help='what the name of the test dataset should be')
+    parser.add_argument('--name', type=str)
     parser.add_argument('--seed', type=int, help='seed for the train/test split')
     
     args = vars(parser.parse_args())
@@ -26,7 +25,7 @@ def argument_parser():
 
 def load_iter_hf_data(dataset_name):
 
-    hf_data = datasets.load_dataset(dataset_name, split='train', streaming=True)
+    hf_data = datasets.load_dataset(dataset_name, split='train', streaming=True).take(1000)
 
     def gen_from_iterable_dataset(iterable_ds):
         yield from iterable_ds
@@ -35,14 +34,19 @@ def load_iter_hf_data(dataset_name):
 
     return ds
 
-def split_data(ds, train_ds_name, test_ds_name):
+def split_data(ds, name):
 
     ds_split = ds.train_test_split(test_size=0.2, seed=2830)
     ds_train = ds_split['train']
     ds_test = ds_split['test']
 
-    ds_train.save_to_disk(os.path.join('datasets', train_ds_name))
-    ds_test.save_to_disk(os.path.join('datasets', test_ds_name))
+    ds_test_split = ds_test.train_test_split(test_size=0.5, seed=2830)
+    ds_val = ds_test_split['train']
+    ds_test = ds_test_split['test']
+
+    ds_train.save_to_disk(os.path.join('datasets', f"{name}_train"))
+    ds_test.save_to_disk(os.path.join('datasets', f"{name}_test"))
+    ds_val.save_to_disk(os.path.join('datasets', f"{name}_val"))
 
 def main():
     
@@ -50,7 +54,7 @@ def main():
 
     ds = load_iter_hf_data(args['huggingface_dataset'])
 
-    split_data(ds, args['train_ds_name'], args['test_ds_name'])
+    split_data(ds, args['name'])
 
 if __name__ == '__main__':
    main()
