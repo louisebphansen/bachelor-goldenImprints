@@ -62,7 +62,7 @@ def build_classfication_model(train_data, hidden_layer_size, feature_col, embedd
     model = Model(inputs=inp, outputs=classification_layer)
 
     # compile model
-    model.compile(optimizer='adam', loss='sparse_categorical_crossentropy') # supposed to be the best for multiclass classification with non-one hot encoded labels?
+    model.compile(optimizer='adam', loss='sparse_categorical_crossentropy', metrics=['accuracy']) # supposed to be the best for multiclass classification with non-one hot encoded labels?
     
     return model
 
@@ -137,7 +137,7 @@ def fit_and_predict(train_data, test_data, val_data, hidden_layer_size, embeddin
     H = model.fit(tf_ds_train, epochs = epochs, steps_per_epoch = epoch_steps, validation_data=tf_ds_val)
 
     # save history plot in "plots" folder
-    #save_plot_history(H, epochs, f'{embedding_col}_{feature_col}_history.png')
+    save_plot_history(H, epochs, f'{embedding_col}_{feature_col}_history.png')
 
     # predict on test data
     predictions = model.predict(tf_ds_test)
@@ -193,7 +193,7 @@ def main():
         f.write(str(end_time))
 
     # save classification report
-    save_classification_report(test_ds_comp, args['feature_col'], args['embedding_col'], predicted_classes)
+    save_classification_report(ds_test, args['feature_col'], args['embedding_col'], predicted_classes)
 
 if __name__ == '__main__':
    main()
