@@ -13,9 +13,7 @@ def argument_parser():
 
     parser = argparse.ArgumentParser()
 
-    parser.add_argument('--train_data', type=str, help="name of train dataset")
-    parser.add_argument('--test_data', type=str, help="name of test dataset")
-    parser.add_argument('--val_data', type=str, help="name of validation data")
+    parser.add_argument('--data_name', type=str, help='name/prefix of huggingface dataset to be used for training, testing and validation containing extracted embeddings. must be in the /datasets folder')
     parser.add_argument('--feature_col', type=str, help="name of column with class labels")
     parser.add_argument('--embedding_col', type=str, help="name of column containing the embeddings")
     parser.add_argument('--epochs', type=int, help="how many epochs to run the model for")
@@ -28,14 +26,13 @@ def argument_parser():
 
 # load datasets
 
-def load_dataset_from_dir(train_data, test_data, val_data):
+def load_data_from_dir(data_name):
 
-    # define paths to train and test huggingface datasets
-    path_to_train_ds = os.path.join('datasets', train_data)
-    path_to_test_ds = os.path.join('datasets', test_data)
-    path_to_val_ds = os.path.join("datasets", val_data)
+    # define paths to train, test and validation datasets
+    path_to_train_ds = os.path.join('datasets', f"{data_name}_train")
+    path_to_test_ds = os.path.join('datasets', f"{data_name}_test")
+    path_to_val_ds = os.path.join('datasets', f"{data_name}_val")
 
-    # load as huggingface datasets
     ds_train = datasets.load_from_disk(path_to_train_ds)
     ds_test = datasets.load_from_disk(path_to_test_ds)
     ds_val = datasets.load_from_disk(path_to_val_ds)
@@ -178,7 +175,7 @@ def main():
     args = argument_parser()
 
     # load datasets
-    ds_train, ds_test, ds_val = load_dataset_from_dir(args['train_data'], args['test_data'], args['val_data'])
+    ds_train, ds_test, ds_val = load_dataset_from_dir(args['data_name'])
  
     # start timer
     start_time = time.time()
@@ -189,7 +186,7 @@ def main():
     end_time = time.time() - start_time
 
     # save time as txt
-    with open(f"times/{args['embedding_col']}_{args['feature_col']}_training_duration.txt", "w") as f:
+    with open(f"times/{args['embedding_col']}_{args['feature_col']}_training.txt", "w") as f:
         f.write(str(end_time))
 
     # save classification report

@@ -25,7 +25,7 @@ def argument_parser():
 
 def load_iter_hf_data(dataset_name):
 
-    hf_data = datasets.load_dataset(dataset_name, split='train', streaming=True).take(1000)
+    hf_data = datasets.load_dataset(dataset_name, split='train', streaming=True).take(500)
 
     def gen_from_iterable_dataset(iterable_ds):
         yield from iterable_ds
