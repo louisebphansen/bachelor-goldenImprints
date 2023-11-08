@@ -4,6 +4,7 @@ import time
 import datasets
 import matplotlib.pyplot as plt
 import numpy as np
+import tensorflow as tf
 from keras.layers import Dense, Input, InputLayer
 from keras.models import Model
 from sklearn.metrics import classification_report
@@ -58,8 +59,16 @@ def build_classfication_model(train_data, hidden_layer_size, feature_col, embedd
     # define model
     model = Model(inputs=inp, outputs=classification_layer)
 
+    # define learning rate schedule and optimizer
+    lr_schedule = tf.keras.optimizers.schedules.ExponentialDecay(
+        initial_learning_rate=0.01,
+        decay_steps=10000,
+        decay_rate=0.9)
+
+    adam = tf.keras.optimizers.Adam(learning_rate=lr_schedule)
+
     # compile model
-    model.compile(optimizer='adam', loss='sparse_categorical_crossentropy', metrics=['accuracy']) # supposed to be the best for multiclass classification with non-one hot encoded labels?
+    model.compile(optimizer=adam, loss='sparse_categorical_crossentropy', metrics=['accuracy']) # supposed to be the best for multiclass classification with non-one hot encoded labels?
     
     return model
 
@@ -130,8 +139,23 @@ def fit_and_predict(train_data, test_data, val_data, hidden_layer_size, embeddin
     # define steps per epoch
     epoch_steps = len(train_data) // batch_size
 
+    # add early stopping, stop training if validation loss does not improve for three epochs
+    early_stopping = tf.keras.callbacks.EarlyStopping(monitor='val_loss', patience=3)
+
+    # start timer
+    start_time = time.time()
+
     # fit model and save history
-    H = model.fit(tf_ds_train, epochs = epochs, steps_per_epoch = epoch_steps, validation_data=tf_ds_val)
+    H = model.fit(tf_ds_train, epochs = epochs, steps_per_epoch = epoch_steps, validation_data=tf_ds_val, callbacks=[early_stopping])
+
+    end_time = time.time() - start_time
+
+    # save time as txt
+    with open(f"times/{embedding_col}_{feature_col}_training.txt", "w") as f:
+        f.write(str(end_time))
+
+    num_epochs= len(H.history['val_loss'])
+    print(f"Model ran for {num_epochs} epochs")
 
     # save history plot in "plots" folder
     save_plot_history(H, epochs, f'{embedding_col}_{feature_col}_history.png')
@@ -176,18 +200,9 @@ def main():
 
     # load datasets
     ds_train, ds_test, ds_val = load_dataset_from_dir(args['data_name'])
- 
-    # start timer
-    start_time = time.time()
 
     # fit model on train data and predict on test data
     predicted_classes = fit_and_predict(ds_train, ds_test, ds_val, args['hidden_layer_size'], args['embedding_col'], args['feature_col'], args['batch_size'], args['epochs'])
-
-    end_time = time.time() - start_time
-
-    # save time as txt
-    with open(f"times/{args['embedding_col']}_{args['feature_col']}_training.txt", "w") as f:
-        f.write(str(end_time))
 
     # save classification report
     save_classification_report(ds_test, args['feature_col'], args['embedding_col'], predicted_classes)
