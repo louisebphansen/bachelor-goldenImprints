@@ -1,5 +1,5 @@
 '''
-This script loads a dataset from the Huggingface Hub, splits it into test and train and saves in a folder in the directory
+This script loads a dataset from the Huggingface Hub, splits it into train, test and validation sets. The datasets are saved in the 'datasets' folder in the main directory
 
 '''
 
@@ -25,7 +25,8 @@ def argument_parser():
 
 def load_iter_hf_data(dataset_name):
 
-    hf_data = datasets.load_dataset(dataset_name, split='train', streaming=True).take(500)
+    
+    hf_data = datasets.load_dataset(dataset_name, split='train', streaming=True)
 
     def gen_from_iterable_dataset(iterable_ds):
         yield from iterable_ds
@@ -34,13 +35,13 @@ def load_iter_hf_data(dataset_name):
 
     return ds
 
-def split_data(ds, name):
+def split_data(ds, name, seed):
 
-    ds_split = ds.train_test_split(test_size=0.2, seed=2830)
+    ds_split = ds.train_test_split(test_size=0.2, seed=seed)
     ds_train = ds_split['train']
     ds_test = ds_split['test']
 
-    ds_test_split = ds_test.train_test_split(test_size=0.5, seed=2830)
+    ds_test_split = ds_test.train_test_split(test_size=0.5, seed=seed)
     ds_val = ds_test_split['train']
     ds_test = ds_test_split['test']
 
@@ -54,7 +55,7 @@ def main():
 
     ds = load_iter_hf_data(args['huggingface_dataset'])
 
-    split_data(ds, args['name'])
+    split_data(ds, args['name'], args['seed'])
 
 if __name__ == '__main__':
    main()

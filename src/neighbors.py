@@ -1,3 +1,9 @@
+''' 
+This script can be used to visually 'check' the embeddings extracted by a given model. Calculates similar images with a 
+kNN algorithm and plots the 5 closest images to a target image.
+
+'''
+
 import datasets
 import numpy as np
 import matplotlib.pyplot as plt
@@ -6,6 +12,7 @@ from numpy.linalg import norm
 from functools import partial
 from sklearn.neighbors import NearestNeighbors
 import pandas as pd
+import os
 
 def argument_parser():
 
@@ -14,7 +21,7 @@ def argument_parser():
     parser.add_argument('--data', type=str)
     parser.add_argument('--target_image', type=int)
     parser.add_argument('--feature_list', type=str)
-    parser.add_argument('')
+    parser.add_argument('--plot_name', type=str)
 
     args = vars(parser.parse_args())
     
@@ -55,8 +62,6 @@ def find_neighbors(feature_list, target_image):
         idxs.append(indices[0][i])
         dist.append(distances[0][i])
     
-    # save the filenames of the 5 closest images
-    #names = [filenames[i] for i in idxs]
 
     # create dataframe
     data = pd.DataFrame({
@@ -69,7 +74,7 @@ def find_neighbors(feature_list, target_image):
     # return filenames as a pandas series to be used in the plotting function
     return data
 
-def show_plot(names, target_image, dataset):
+def show_plot(names, target_image, dataset, plot_name):
     '''
     Plot target image next to the five closest images
 
@@ -101,9 +106,11 @@ def show_plot(names, target_image, dataset):
     for ax in f.axes:
         ax.axison = False
 
-    plt.show()
+    #plt.show()
 
-def plot_neighbors(feature_list, target_image, dataset):
+    plt.savefig(os.path.join('plots', plot_name))
+
+def plot_neighbors(feature_list, target_image, dataset, plot_name):
 
     # find closest images and save in a df
     data = find_neighbors(feature_list, target_image)
@@ -112,4 +119,20 @@ def plot_neighbors(feature_list, target_image, dataset):
     indices = data['index'].tolist()
 
     # plot them
-    show_plot(indices, target_image, dataset)
+    show_plot(indices, target_image, dataset, plot_name)
+
+def main():
+
+    args = argument_parser()
+
+    path_to_train_ds = os.path.join('datasets', args['data'])
+
+    ds = datasets.load_from_disk(path_to_train_ds)
+
+    plot_neighbors(ds[args['feature_list']], args['target_image'], ds, args['plot_name'])
+
+if __name__ == '__main__':
+   main()
+
+
+

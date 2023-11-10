@@ -95,7 +95,7 @@ def main():
   
     # load huggingface datasets from desk
     train_ds, test_ds, val_ds = load_data_from_dir(args['data_name'])
-    # args['train_data'], args['test_data'], args['val_data']
+
     # save the preprocessing steps applied to the data
     transforms = save_preprocessing_info(model, args['pretrained_model'])
 
