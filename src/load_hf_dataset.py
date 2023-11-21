@@ -1,5 +1,5 @@
 '''
-This script loads a dataset from the Huggingface Hub, splits it into train, test and validation sets. The datasets are saved in the 'datasets' folder in the main directory
+This script loads a dataset from the Huggingface Hub and splits it into train, test and validation sets. The datasets are saved in the 'datasets' folder in the main directory
 
 '''
 
@@ -15,7 +15,7 @@ def argument_parser():
     parser = argparse.ArgumentParser()
 
     parser.add_argument('--huggingface_dataset', type=str, help='path to dataset on huggingface, e.g., huggan/wikiart')
-    parser.add_argument('--name', type=str)
+    parser.add_argument('--name', type=str, help='what to call the new datasets')
     parser.add_argument('--seed', type=int, help='seed for the train/test split')
     
     args = vars(parser.parse_args())
@@ -25,9 +25,10 @@ def argument_parser():
 
 def load_iter_hf_data(dataset_name):
 
-    
+    # load dataset from the hub
     hf_data = datasets.load_dataset(dataset_name, split='train', streaming=True)
 
+    # 
     def gen_from_iterable_dataset(iterable_ds):
         yield from iterable_ds
 

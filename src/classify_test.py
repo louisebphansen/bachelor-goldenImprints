@@ -1,3 +1,5 @@
+# test, try with 2 hidden layers instead
+
 import argparse
 import os 
 import time
@@ -20,6 +22,7 @@ def argument_parser():
     parser.add_argument('--embedding_col', type=str, help="name of column containing the embeddings")
     parser.add_argument('--epochs', type=int, help="how many epochs to run the model for")
     parser.add_argument('--hidden_layer_size', type=int, help='size of the hidden layer in classification model')
+    parser.add_argument('--second_layer_size', type=int)
     parser.add_argument('--batch_size', type=int)
 
     args = vars(parser.parse_args())
@@ -42,7 +45,7 @@ def load_data_from_dir(data_name):
     return ds_train, ds_test, ds_val
 
 # build classification model
-def build_classfication_model(train_data, hidden_layer_size, feature_col, embedding_col):
+def build_classfication_model(train_data, hidden_layer_size, second_layer_size, feature_col, embedding_col):
     
     # save number of classes (to be used for the last layer of the model)
     num_classes = train_data.features[feature_col].num_classes
@@ -54,12 +57,18 @@ def build_classfication_model(train_data, hidden_layer_size, feature_col, embedd
     # define shape of hidden layer
     hidden_layer = Dense(hidden_layer_size, activation='relu', kernel_regularizer=regularizers.l2(0.01))(inp)
     
-    #droput_layer = Dropout(rate=0.1)(hidden_layer)
-
     #batchnorm_layer = BatchNormalization()(hidden_layer)
 
+    #droput_layer = Dropout(rate=0.2)(hidden_layer)
+
+    second_layer = Dense(second_layer_size, activation='relu')(hidden_layer)
+    
+    #second_droput_layer = Dropout(rate=0.2)(second_layer)
+
+    #second_batchnorm_layer = BatchNormalization()(second_layer)
+
     # add classification layer
-    classification_layer = Dense(num_classes, activation='softmax')(hidden_layer)
+    classification_layer = Dense(num_classes, activation='softmax')(second_layer)
 
     # define model
     model = Model(inputs=inp, outputs=classification_layer)
@@ -110,14 +119,14 @@ def save_plot_history(H, epochs, name):
     plt.ylabel("Accuracy")
     plt.tight_layout()
     plt.legend()
-    plt.savefig(os.path.join('out', 'plots', name))
+    plt.savefig(os.path.join('plots', name))
 
 # create model that classifies artist, genre etc. 
-def fit_and_predict(train_data, test_data, val_data, hidden_layer_size, embedding_col, feature_col, batch_size, epochs):
+def fit_and_predict(train_data, test_data, val_data, hidden_layer_size, second_layer_size, embedding_col, feature_col, batch_size, epochs):
 
     '''fit a compiled model on training data and predict on test dataset'''
 
-    model = build_classfication_model(train_data, hidden_layer_size, feature_col, embedding_col)
+    model = build_classfication_model(train_data, hidden_layer_size, second_layer_size, feature_col, embedding_col)
 
     # convert to tensorflow datasets
     tf_ds_train = train_data.to_tf_dataset(
@@ -157,23 +166,20 @@ def fit_and_predict(train_data, test_data, val_data, hidden_layer_size, embeddin
     end_time = time.time() - start_time
 
     # save time as txt
-    with open(f"out/times/{embedding_col}_{feature_col}_training_l2.txt", "w") as f:
-       f.write(str(end_time))
+    with open(f"times/{embedding_col}_{feature_col}_training_TWO_HIDDEN_l2.txt", "w") as f:
+        f.write(str(end_time))
 
     num_epochs= len(H.history['val_loss'])
     print(f"Model ran for {num_epochs} epochs")
 
     # save history plot in "plots" folder
-    save_plot_history(H, num_epochs, f'{embedding_col}_{feature_col}_history_l2.png')
+    save_plot_history(H, num_epochs, f'{embedding_col}_{feature_col}_history_TWO_HIDDEN_l2.png')
 
     # predict on test data
     predictions = model.predict(tf_ds_test)
 
     # find class with the highest probability
     predicted_classes = np.argmax(predictions,axis=1)
-
-    # save predicted classes as .npy to be used for plotting
-    np.save(f'out/y_pred/{embedding_col}_{feature_col}_y_pred.npy', predicted_classes)
 
     return predicted_classes
 
@@ -198,7 +204,7 @@ def save_classification_report(test_data, feature_col, embedding_col, predicted_
                             predicted_classes, target_names = labels)
     
     # save classification report
-    out_path = os.path.join("out", "classification_reports", f'{embedding_col}_{feature_col}_classification_report_l2.txt')
+    out_path = os.path.join("classification_reports", f'{embedding_col}_{feature_col}_classification_report_TWO_HIDDEN_l2.txt')
 
     with open(out_path, 'w') as file:
                 file.write(report)
@@ -211,7 +217,7 @@ def main():
     ds_train, ds_test, ds_val = load_data_from_dir(args['data_name'])
 
     # fit model on train data and predict on test data
-    predicted_classes = fit_and_predict(ds_train, ds_test, ds_val, args['hidden_layer_size'], args['embedding_col'], args['feature_col'], args['batch_size'], args['epochs'])
+    predicted_classes = fit_and_predict(ds_train, ds_test, ds_val, args['hidden_layer_size'], args['second_layer_size'], args['embedding_col'], args['feature_col'], args['batch_size'], args['epochs'])
 
     # save classification report
     save_classification_report(ds_test, args['feature_col'], args['embedding_col'], predicted_classes)
