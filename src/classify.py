@@ -8,7 +8,9 @@ import tensorflow as tf
 from keras.layers import Dense, Input, Dropout, BatchNormalization
 from keras.models import Model
 from sklearn.metrics import classification_report
+from sklearn.utils import class_weight
 from tensorflow.keras import regularizers
+
 
 # define argument parser
 def argument_parser():
@@ -112,7 +114,27 @@ def save_plot_history(H, epochs, name):
     plt.legend()
     plt.savefig(os.path.join('out', 'plots', name))
 
-# create model that classifies artist, genre etc. 
+
+def create_class_weights(train_data, feature_col):
+    '''
+    Create class weights based on number of samples in each class.
+    '''
+
+    labels = train_data[feature_col]
+
+    # compute class weights based on number of samples in each class
+    class_weights = class_weight.compute_class_weight(class_weight = 'balanced',
+                                                 classes = np.unique(labels),
+                                                 y = labels)
+
+    # convert to a dictionary suitable for using in a model.fit pipeline
+    class_weights = dict(zip(np.unique(labels), class_weights))
+
+    return class_weights
+
+    print(class_weights)
+
+
 def fit_and_predict(train_data, test_data, val_data, hidden_layer_size, embedding_col, feature_col, batch_size, epochs):
 
     '''fit a compiled model on training data and predict on test dataset'''
@@ -151,20 +173,29 @@ def fit_and_predict(train_data, test_data, val_data, hidden_layer_size, embeddin
     # start timer
     start_time = time.time()
 
+    #class_weights = create_class_weights(train_data, feature_col)
+
     # fit model and save history
-    H = model.fit(tf_ds_train, epochs = epochs, validation_data=tf_ds_val, callbacks=[early_stopping])
+    H = model.fit(tf_ds_train, 
+                    epochs = epochs,
+                    validation_data=tf_ds_val,
+                    callbacks=[early_stopping])
 
     end_time = time.time() - start_time
 
+    # save model history to use for plotting later
+
+    np.save(f'out/history/{embedding_col}_{feature_col}_history.npy', H.history)
+
     # save time as txt
-    with open(f"out/times/{embedding_col}_{feature_col}_training_l2.txt", "w") as f:
+    with open(f"out/times/{embedding_col}_{feature_col}_training_l2_balanced.txt", "w") as f:
        f.write(str(end_time))
 
     num_epochs= len(H.history['val_loss'])
     print(f"Model ran for {num_epochs} epochs")
 
     # save history plot in "plots" folder
-    save_plot_history(H, num_epochs, f'{embedding_col}_{feature_col}_history_l2.png')
+    save_plot_history(H, num_epochs, f'{embedding_col}_{feature_col}_history.png')
 
     # predict on test data
     predictions = model.predict(tf_ds_test)
@@ -198,7 +229,7 @@ def save_classification_report(test_data, feature_col, embedding_col, predicted_
                             predicted_classes, target_names = labels)
     
     # save classification report
-    out_path = os.path.join("out", "classification_reports", f'{embedding_col}_{feature_col}_classification_report_l2.txt')
+    out_path = os.path.join("out", "classification_reports", f'{embedding_col}_{feature_col}_classification_report.txt')
 
     with open(out_path, 'w') as file:
                 file.write(report)

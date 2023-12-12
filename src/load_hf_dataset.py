@@ -1,9 +1,9 @@
 '''
-This script loads a dataset from the Huggingface Hub and splits it into train, test and validation sets. The datasets are saved in the 'datasets' folder in the main directory
+This script loads a dataset from the Huggingface Hub and splits it into train, test and validation sets. 
+The datasets are saved in the 'datasets' folder in the main directory
 
 '''
-
-import datasets # huggingface datasets package
+import datasets
 from functools import partial
 import argparse 
 import os 
@@ -28,24 +28,28 @@ def load_iter_hf_data(dataset_name):
     # load dataset from the hub
     hf_data = datasets.load_dataset(dataset_name, split='train', streaming=True)
 
-    # 
+    # convert dataset to iterable generator
     def gen_from_iterable_dataset(iterable_ds):
         yield from iterable_ds
 
+    # convert to dataset to be saved locally
     ds = datasets.Dataset.from_generator(partial(gen_from_iterable_dataset, hf_data), features=hf_data.features)
 
     return ds
 
 def split_data(ds, name, seed):
 
+    # split data into train and test
     ds_split = ds.train_test_split(test_size=0.2, seed=seed)
     ds_train = ds_split['train']
     ds_test = ds_split['test']
 
+    # split test data into test and validation
     ds_test_split = ds_test.train_test_split(test_size=0.5, seed=seed)
     ds_val = ds_test_split['train']
     ds_test = ds_test_split['test']
 
+    # save the datasets to disk with the same prefix
     ds_train.save_to_disk(os.path.join('datasets', f"{name}_train"))
     ds_test.save_to_disk(os.path.join('datasets', f"{name}_test"))
     ds_val.save_to_disk(os.path.join('datasets', f"{name}_val"))

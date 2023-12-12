@@ -108,7 +108,7 @@ def show_plot(names, target_image, dataset, plot_name):
 
     #plt.show()
 
-    plt.savefig(os.path.join('plots', plot_name))
+    plt.savefig(os.path.join('out', 'plots', plot_name))
 
 def plot_neighbors(feature_list, target_image, dataset, plot_name):
 

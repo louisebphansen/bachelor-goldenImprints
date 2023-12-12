@@ -1,3 +1,7 @@
+'''
+This script uses a pretrained model from the timm library to extract features from images in a huggingface dataset.
+A new dataset with extracted image embeddings are saved in the 'datasets' folder
+'''
 import argparse
 import os 
 import time
@@ -11,7 +15,7 @@ def argument_parser():
 
     parser = argparse.ArgumentParser()
 
-    parser.add_argument('--pretrained_model', type=str, help= 'name of the pretrained model to use')
+    parser.add_argument('--pretrained_model', type=str, help= 'name of the pretrained model in timm to use')
     parser.add_argument('--data_name', type=str, help='name/prefix of huggingface dataset to be used for training, testing and validation. must be in the /datasets folder')
     parser.add_argument('--embedding_col_name', type=str, help='what the name of the new column containing the embeddings in the dataset should be')
     parser.add_argument('--new_data_name', type=str, help='what the train, test and validation datasets with the new embeddings columns should be saved as. datasets cant overwrite themselves, so give a new name. will be saved as three seperate train, test and val sets')
@@ -27,6 +31,7 @@ def load_data_from_dir(data_name):
     path_to_test_ds = os.path.join('datasets', f"{data_name}_test")
     path_to_val_ds = os.path.join('datasets', f"{data_name}_val")
 
+    # load from disk
     ds_train = datasets.load_from_disk(path_to_train_ds)
     ds_test = datasets.load_from_disk(path_to_test_ds)
     ds_val = datasets.load_from_disk(path_to_val_ds)
@@ -37,13 +42,14 @@ def save_preprocessing_info(model, model_name):
 
     # save preprocessing information from the pretrained model
     data_config = timm.data.resolve_model_data_config(model)
+
     # use this information to transform the data
     transforms = timm.data.create_transform(**data_config, is_training=False)
 
     # save transformations as a .txt file
     transforms_str = str(transforms)
 
-    with open(f'preprocessing/{model_name}_transforms.txt', 'w') as f:
+    with open(f'out/preprocessing/{model_name}_transforms.txt', 'w') as f:
         f.write(transforms_str)
     
     return transforms
@@ -67,10 +73,9 @@ def features_from_dataset(dataset, model, transforms):
     # initialize empty list
     embeddings = []
 
-    # loop over each image in the dataset
+    # loop over each image in the dataset and extract feature embeddings
     for i in tqdm(range(len(dataset)), desc="Extracting features from images"):
         image = dataset[i]['image']
-        # extract feature embeddings
         feature = transform_and_extract(image, model, transforms)
         embeddings.append(feature)
 
@@ -108,7 +113,7 @@ def main():
 
     # save time as txt
     model_name = args['pretrained_model']
-    with open(f"times/{args['pretrained_model']}_feature_extraction.txt", "w") as f:
+    with open(f"out/times/{args['pretrained_model']}_feature_extraction.txt", "w") as f:
         f.write(str(end_time))
 
     # extract features for test and validation datasets
