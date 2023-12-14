@@ -9,7 +9,6 @@ import numpy as np
 import matplotlib.pyplot as plt
 import argparse
 from numpy.linalg import norm
-from functools import partial
 from sklearn.neighbors import NearestNeighbors
 import pandas as pd
 import os
