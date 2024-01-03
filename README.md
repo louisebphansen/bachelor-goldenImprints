@@ -44,7 +44,7 @@ To run the entire analysis with predefined arguments, run:
 bash run.sh
 ```
 
-This downloads the WikiArt dataset from HuggingFace (https://huggingface.co/datasets/huggan/wikiart). Next, three different pretrained models from the ```timm``` library, EVA-02, ConvNext-V2 and ConvNext-CLIP-Aesthetic are used to extract embeddings from the dataset. Next, nine seperate classification models are fit for the three features of the WikiArt dataset, i.e., genre, style and artist. 
+This first downloads the WikiArt dataset from HuggingFace (https://huggingface.co/datasets/huggan/wikiart). Next, three different pretrained models from the ```timm``` library, EVA-02, ConvNext-V2 and ConvNext-CLIP-Aesthetic are used to extract embeddings from the dataset. Finally, nine seperate classification models are fit for the three features of the WikiArt dataset, i.e., genre, style and artist. 
 
 **NB: Due to the size of the dataset and the number of models, running the entire analysis will take several days, depending on your computation power. See ```Runtime``` for more information on this.** 
 
@@ -61,3 +61,9 @@ The table shows time spend on feature extraction for the training data (61,155 i
 | ConvNext-V2 | 24.22 hours|
 | ConvNext-CLIP-Aesthetic | 4 hours|
 
+
+### Results
+
+The table shows accuracies and balanced accuracies for the WikiArt classification.
+
+![Alt text](image.png)
