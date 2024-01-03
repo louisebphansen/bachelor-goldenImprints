@@ -5,10 +5,9 @@ import datasets
 import matplotlib.pyplot as plt
 import numpy as np
 import tensorflow as tf
-from keras.layers import Dense, Input, Dropout, BatchNormalization
+from keras.layers import Dense, Input
 from keras.models import Model
 from sklearn.metrics import classification_report
-from sklearn.utils import class_weight
 from tensorflow.keras import regularizers
 
 
@@ -55,10 +54,6 @@ def build_classfication_model(train_data, hidden_layer_size, feature_col, embedd
 
     # define shape of hidden layer
     hidden_layer = Dense(hidden_layer_size, activation='relu', kernel_regularizer=regularizers.l2(0.01))(inp)
-    
-    #droput_layer = Dropout(rate=0.1)(hidden_layer)
-
-    #batchnorm_layer = BatchNormalization()(hidden_layer)
 
     # add classification layer
     classification_layer = Dense(num_classes, activation='softmax')(hidden_layer)
@@ -115,26 +110,6 @@ def save_plot_history(H, epochs, name):
     plt.savefig(os.path.join('out', 'plots', name))
 
 
-def create_class_weights(train_data, feature_col):
-    '''
-    Create class weights based on number of samples in each class.
-    '''
-
-    labels = train_data[feature_col]
-
-    # compute class weights based on number of samples in each class
-    class_weights = class_weight.compute_class_weight(class_weight = 'balanced',
-                                                 classes = np.unique(labels),
-                                                 y = labels)
-
-    # convert to a dictionary suitable for using in a model.fit pipeline
-    class_weights = dict(zip(np.unique(labels), class_weights))
-
-    return class_weights
-
-    print(class_weights)
-
-
 def fit_and_predict(train_data, test_data, val_data, hidden_layer_size, embedding_col, feature_col, batch_size, epochs):
 
     '''fit a compiled model on training data and predict on test dataset'''
@@ -163,17 +138,12 @@ def fit_and_predict(train_data, test_data, val_data, hidden_layer_size, embeddin
             shuffle=False # ?
             )
 
-    # define steps per epoch
-    #epoch_steps = (len(train_data) // batch_size) -1
-    #print(epoch_steps)
 
     # add early stopping, stop training if validation loss does not improve for three epochs
     early_stopping = tf.keras.callbacks.EarlyStopping(monitor='val_loss', patience=3)
 
     # start timer
     start_time = time.time()
-
-    #class_weights = create_class_weights(train_data, feature_col)
 
     # fit model and save history
     H = model.fit(tf_ds_train, 
