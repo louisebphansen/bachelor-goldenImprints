@@ -1,3 +1,7 @@
+'''
+This script classifies the WikiArt dataset based on the features extracted in the 'extract_features.py' script
+Classification report and history plots are saved in the 'out' folder
+'''
 import argparse
 import os 
 import time
