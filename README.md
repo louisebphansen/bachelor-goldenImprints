@@ -62,7 +62,7 @@ The table shows time spend on feature extraction for the training data (61,155 i
 | ConvNext-CLIP-Aesthetic | 4 hours|
 
 
-### Results
+## Results
 
 The table shows accuracies and balanced accuracies for the WikiArt classification.
 
