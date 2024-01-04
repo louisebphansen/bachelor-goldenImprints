@@ -1,4 +1,4 @@
-# Representing Visual Arts
+# Representing Visual Art
 
 This repository contains the code for my bachelor's project from Aarhus University, January 2024.
 
