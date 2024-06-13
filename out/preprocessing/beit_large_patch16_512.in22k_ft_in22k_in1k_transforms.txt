@@ -1,0 +1,6 @@
+Compose(
+    Resize(size=512, interpolation=bicubic, max_size=None, antialias=True)
+    CenterCrop(size=(512, 512))
+    ToTensor()
+    Normalize(mean=tensor([0.5000, 0.5000, 0.5000]), std=tensor([0.5000, 0.5000, 0.5000]))
+)
