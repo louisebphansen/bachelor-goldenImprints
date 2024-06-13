@@ -1,4 +1,4 @@
-# Representing Visual Arts
+# Representing Visual Art
 
 This repository contains the code for my bachelor's project from Aarhus University, January 2024.
 
@@ -66,4 +66,4 @@ The table shows time spend on feature extraction for the training data (61,155 i
 
 The table shows accuracies and balanced accuracies for the WikiArt classification.
 
-![Alt text](image.png)
+![image](https://github.com/louisebphansen/bachelor-goldenImprints/assets/75262659/0feb9d1f-dd23-4f05-89e7-2578fee2cea3)
