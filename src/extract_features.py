@@ -1,7 +1,3 @@
-'''
-This script uses a pretrained model from the timm library to extract features from images in a huggingface dataset.
-A new dataset with extracted image embeddings are saved in the 'datasets' folder
-'''
 import argparse
 import os 
 import time
@@ -56,8 +52,16 @@ def save_preprocessing_info(model, model_name):
 
 def transform_and_extract(img, model, transforms):
 
-    # apply transformations, convert to tensor and extract features
-    features = model(transforms(img).unsqueeze(0)) # unsqueeze adds a dim so the shape is now (1, 3, img_size, img_size)
+    # apply transformations
+    transformed_image = transforms(img).unsqueeze(0) # unsqueeze adds a dim so the shape is now (1, 3, img_size, img_size)
+
+    # if running on GPU:
+    if torch.cuda.is_available():
+        transformed_image = transformed_image.cuda()
+        model.to('cuda')
+    
+    # extract features
+    features = model(transformed_image)
 
     # convert from tensor to list
     feature_list = features.tolist()
@@ -93,6 +97,10 @@ def main():
     
     # parse arguments
     args = argument_parser()
+
+    # check cuda availability
+    device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+    print(device)
 
     # initialize model
     model = timm.create_model(args['pretrained_model'], pretrained=True, num_classes=0)
