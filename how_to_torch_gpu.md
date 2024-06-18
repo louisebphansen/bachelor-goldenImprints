@@ -13,16 +13,17 @@ Initialize conda
 ```
 
 Install project requirements with GPU support in a conda env.
-Tell keras to use tensorflow as backend.
+Tell keras to use torch as backend.
 ```
-conda create -y -n tf-gpu
-conda activate tf-gpu
-conda install tensorflow-gpu
-pip install -r requirements.txt
-export KERAS_BACKEND="tensorflow"
+conda create -y -n torch-gpu
+conda activate torch-gpu
+conda install pytorch torchvision torchaudio pytorch-cuda=12.4 -c pytorch-nightly -c nvidia
+pip install datasets scikit_learn timm matplotlib tqdm
+export KERAS_BACKEND="torch"
 ```
 
-Test that tensorflow sees GPU
-```
-python -c "import tensorflow as tf; print(tf.config.list_physical_devices('GPU'))"
+Test that GPU is available
+```{python}
+import torch
+torch.cuda.is_available()
 ```
