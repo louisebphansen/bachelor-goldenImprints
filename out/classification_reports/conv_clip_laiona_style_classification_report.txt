@@ -1,33 +1,33 @@
                             precision    recall  f1-score   support
 
-    Abstract_Expressionism       0.67      0.82      0.74       275
-           Action_painting       0.50      0.11      0.18         9
-         Analytical_Cubism       0.93      0.78      0.85        18
-               Art_Nouveau       0.68      0.64      0.66       423
-                   Baroque       0.84      0.69      0.76       442
-      Color_Field_Painting       0.75      0.73      0.74       158
-      Contemporary_Realism       0.70      0.57      0.63        54
-                    Cubism       0.67      0.61      0.64       213
-         Early_Renaissance       0.73      0.74      0.73       140
-             Expressionism       0.55      0.65      0.59       682
-                   Fauvism       0.58      0.35      0.44        92
-          High_Renaissance       0.63      0.47      0.54       140
-             Impressionism       0.77      0.72      0.75      1287
-Mannerism_Late_Renaissance       0.59      0.66      0.62       144
-                Minimalism       0.76      0.73      0.74       129
-     Naive_Art_Primitivism       0.71      0.66      0.68       238
-               New_Realism       0.90      0.29      0.44        31
-      Northern_Renaissance       0.73      0.89      0.80       244
-               Pointillism       0.77      0.66      0.71        56
-                   Pop_Art       0.83      0.63      0.72       144
-        Post_Impressionism       0.54      0.54      0.54       646
-                   Realism       0.61      0.73      0.67      1063
-                    Rococo       0.73      0.70      0.72       209
-               Romanticism       0.71      0.62      0.66       708
-                 Symbolism       0.58      0.62      0.60       454
-          Synthetic_Cubism       0.69      0.58      0.63        19
-                   Ukiyo_e       0.99      0.97      0.98       127
+    Abstract_Expressionism       0.69      0.77      0.73       275
+           Action_painting       0.00      0.00      0.00         9
+         Analytical_Cubism       0.00      0.00      0.00        18
+               Art_Nouveau       0.61      0.66      0.63       423
+                   Baroque       0.56      0.85      0.68       442
+      Color_Field_Painting       0.75      0.72      0.74       158
+      Contemporary_Realism       0.50      0.37      0.43        54
+                    Cubism       0.58      0.60      0.59       213
+         Early_Renaissance       0.52      0.89      0.66       140
+             Expressionism       0.48      0.70      0.57       682
+                   Fauvism       0.00      0.00      0.00        92
+          High_Renaissance       0.00      0.00      0.00       140
+             Impressionism       0.66      0.80      0.72      1287
+Mannerism_Late_Renaissance       0.00      0.00      0.00       144
+                Minimalism       0.80      0.78      0.79       129
+     Naive_Art_Primitivism       0.63      0.73      0.67       238
+               New_Realism       0.00      0.00      0.00        31
+      Northern_Renaissance       0.81      0.82      0.82       244
+               Pointillism       0.00      0.00      0.00        56
+                   Pop_Art       0.66      0.78      0.72       144
+        Post_Impressionism       0.00      0.00      0.00       646
+                   Realism       0.59      0.77      0.67      1063
+                    Rococo       0.00      0.00      0.00       209
+               Romanticism       0.61      0.69      0.64       708
+                 Symbolism       0.67      0.53      0.59       454
+          Synthetic_Cubism       0.00      0.00      0.00        19
+                   Ukiyo_e       0.98      0.98      0.98       127
 
-                  accuracy                           0.67      8145
-                 macro avg       0.71      0.64      0.66      8145
-              weighted avg       0.68      0.67      0.67      8145
+                  accuracy                           0.62      8145
+                 macro avg       0.41      0.46      0.43      8145
+              weighted avg       0.52      0.62      0.56      8145
