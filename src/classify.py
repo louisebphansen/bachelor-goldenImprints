@@ -9,10 +9,10 @@ import datasets
 import matplotlib.pyplot as plt
 import numpy as np
 import tensorflow as tf
-from keras.layers import Dense, Input
-from keras.models import Model
-from sklearn.metrics import classification_report
+from tensorflow.keras.layers import Dense, Input
+from tensorflow.keras.models import Model
 from tensorflow.keras import regularizers
+from sklearn.metrics import classification_report
 
 
 # define argument parser
