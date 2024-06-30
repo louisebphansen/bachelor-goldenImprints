@@ -1,6 +1,6 @@
 # Representing Visual Art
 
-This repository contains the code for the paper on representing visual artworks for the CHR conference in Aarhus, 2024-
+This repository contains the code for the paper on representing visual artworks for the CHR conference in Aarhus, 2024.
 
 ## Project Description
 The paper compares the representational abilities of unimodal and multimodal state-of-the-art pre-trained vision models from the *timm* library, by employing their embeddings in three domain-specific downstream tasks: genre classification, style classification, and artist classification in the WikiArt dataset.
