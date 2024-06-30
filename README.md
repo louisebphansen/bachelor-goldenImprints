@@ -1,15 +1,16 @@
 # Representing Visual Art
 
-This repository contains the code for my bachelor's project from Aarhus University, January 2024.
+This repository contains the code for the paper on representing visual artworks for the CHR conference in Aarhus, 2024-
 
 ## Project Description
-The project aims to examine representation learning for visual art by exploring and comparing which pre-trained vision models best represent artworks. To do so, nine different classifiers have been constructed, which tries to classify the *WikiArt* dataset based of image embeddings extracted by pre-trained vision models from the *timm* library. 
+The paper compares the representational abilities of unimodal and multimodal state-of-the-art pre-trained vision models from the *timm* library, by employing their embeddings in three domain-specific downstream tasks: genre classification, style classification, and artist classification in the WikiArt dataset.
+
 
 ## Project Structure
 
 | <div style="width:120px"></div>| Description |
 |---------|:-----------|
-| ```nbs```  | Notebooks used in the project         |
+| ```nbs```  | Notebooks used for creating plots        |
 | ```out``` | Contains all outputs from running the scripts|
 | ```src```  | Folder with scripts used for downloading the data, extracting features and building and fitting classifier models       |
 | ```run.sh```    | Bash script for running the entire analysis with predefined arguments  |
@@ -44,26 +45,6 @@ To run the entire analysis with predefined arguments, run:
 bash run.sh
 ```
 
-This first downloads the WikiArt dataset from HuggingFace (https://huggingface.co/datasets/huggan/wikiart). Next, three different pretrained models from the ```timm``` library, EVA-02, ConvNext-V2 and ConvNext-CLIP-Aesthetic are used to extract embeddings from the dataset. Finally, nine seperate classification models are fit for the three features of the WikiArt dataset, i.e., genre, style and artist. 
+This first downloads the WikiArt dataset from HuggingFace (https://huggingface.co/datasets/huggan/wikiart). Next,  different pretrained models from the ```timm``` library are used to extract embeddings from the dataset. Finally, seperate classification models are fit for each models for the three features of the WikiArt dataset, i.e., genre, style and artist. 
 
-**NB: Due to the size of the dataset and the number of models, running the entire analysis will take several days, depending on your computation power. See ```Runtime``` for more information on this.** 
-
-### Runtime
-All code was run on 1 NVIDIA V100 GPU with 45GB memory and 20 vCPU (Intel Zeon Gold 6230) on the UCloud platform.
-
-#### Feature Extraction
-
-The table shows time spend on feature extraction for the training data (61,155 images).
-
-| Model|  Time |
-|---------|:-----------|
-| EVA-02  | 20.5 hours      |
-| ConvNext-V2 | 24.22 hours|
-| ConvNext-CLIP-Aesthetic | 4 hours|
-
-
-## Results
-
-The table shows accuracies and balanced accuracies for the WikiArt classification.
-
-![image](https://github.com/louisebphansen/bachelor-goldenImprints/assets/75262659/0feb9d1f-dd23-4f05-89e7-2578fee2cea3)
+**NB: Due to the size of the dataset and the number of models, running the entire analysis will take several days, depending on your computation power.

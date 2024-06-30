@@ -35,6 +35,13 @@ def argument_parser():
 
 def load_data_from_dir(data_name):
 
+    '''
+    Load huggingface dataset from folder
+
+    Args:
+        - data_name: name of dataset to load
+    '''
+
     # define paths to train, test and validation datasets
     path_to_train_ds = os.path.join('datasets', f"{data_name}_train")
     path_to_test_ds = os.path.join('datasets', f"{data_name}_test")
@@ -48,7 +55,15 @@ def load_data_from_dir(data_name):
 
 # build classification model
 def build_classfication_model(train_data, hidden_layer_size, feature_col, embedding_col):
-    
+    '''
+    Build simple neural network with tensorflow
+
+    Args:
+        - train_data: huggingface ds with train data
+        - hidden_layer_size: specify size of hidden layer
+        - feature_col: label of dataset to classify, e.g., 'genre'
+        - embedding_col: name of column containing image embeddings
+    '''
     # save number of classes (to be used for the last layer of the model)
     num_classes = train_data.features[feature_col].num_classes
 
@@ -74,14 +89,13 @@ def build_classfication_model(train_data, hidden_layer_size, feature_col, embedd
     adam = tf.keras.optimizers.Adam(learning_rate=lr_schedule)
 
     # compile model
-    model.compile(optimizer=adam, loss='sparse_categorical_crossentropy', metrics=['accuracy']) # supposed to be the best for multiclass classification with non-one hot encoded labels?
+    model.compile(optimizer=adam, loss='sparse_categorical_crossentropy', metrics=['accuracy'])
     
     return model
 
 def save_plot_history(H, epochs, name):
     '''
     Saves the validation and loss history plots of a fitted model in the 'out' folder.
-    Code is borrowed and adapted from the Session 9 notebook of the Visual Analytics course @ Aarhus University, 2023.
     
     Arguments:
     - H: Saved history of a model fit
@@ -116,11 +130,24 @@ def save_plot_history(H, epochs, name):
 
 def fit_and_predict(train_data, test_data, val_data, hidden_layer_size, embedding_col, feature_col, batch_size, epochs):
 
-    '''fit a compiled model on training data and predict on test dataset'''
+    '''
+    Fit a compiled model on training data and predict on test dataset
+
+    Args:
+        - train_data: huggingface ds with training data
+        - test_data: huggingface ds with test data
+        - val_data: huggingface ds with val data
+        - hidden_layer_size: size of hidden layer
+        - embedding_col: name of column containing image embeddings
+        - feature_col: label of dataset to classify, e.g., 'genre'
+        - batch_size: batch size
+        - epochs: how many epochs to run the model for
+    '''
 
     model = build_classfication_model(train_data, hidden_layer_size, feature_col, embedding_col)
 
     # convert to tensorflow datasets
+
     tf_ds_train = train_data.to_tf_dataset(
             columns=embedding_col, # the columns to be used as inputs to the model, X
             label_cols=feature_col, # columns containing class labels, y
@@ -139,7 +166,7 @@ def fit_and_predict(train_data, test_data, val_data, hidden_layer_size, embeddin
             columns=embedding_col,
             label_cols=feature_col, 
             batch_size=batch_size,
-            shuffle=False # ?
+            shuffle=False
             )
 
 
@@ -183,6 +210,17 @@ def fit_and_predict(train_data, test_data, val_data, hidden_layer_size, embeddin
     return predicted_classes
 
 def save_classification_report(test_data, feature_col, embedding_col, predicted_classes):
+
+    '''
+    Save classification report on predicted versus true data
+
+    Args:
+        - test_data: huggingface ds with test data
+        - feature_col: label of dataset classified, e.g., 'genre'
+        - embedding_col: name of column containing image embeddings
+        - predicted_classes: predicted y labels
+    
+    '''
 
     # save the class labels
     label_class = test_data.features[feature_col]

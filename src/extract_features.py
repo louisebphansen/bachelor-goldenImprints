@@ -1,3 +1,7 @@
+'''
+This script loads a huggingface dataset with images and extracts embeddings from them
+'''
+
 import argparse
 import os 
 import time
@@ -21,6 +25,12 @@ def argument_parser():
     return args
 
 def load_data_from_dir(data_name):
+    '''
+    Load huggingface dataset from folder
+
+    Args:
+        - data_name: name of dataset to load
+    '''
 
     # define paths to train, test and validation datasets
     path_to_train_ds = os.path.join('datasets', f"{data_name}_train")
@@ -35,6 +45,15 @@ def load_data_from_dir(data_name):
     return ds_train, ds_test, ds_val
 
 def save_preprocessing_info(model, model_name):
+
+    '''
+    Save preprocessing information of pretrained model
+
+    Args:
+        - model: loaded pretrained timm model
+        - model_name: name of pretrained model
+    '''
+
 
     # save preprocessing information from the pretrained model
     data_config = timm.data.resolve_model_data_config(model)
@@ -51,6 +70,15 @@ def save_preprocessing_info(model, model_name):
     return transforms
 
 def transform_and_extract(img, model, transforms):
+
+    '''
+    Preprocess image and extract embedding
+
+    Args:
+        - img: image to extract features from
+        - model: pretrained timm model
+        - transforms: preprocessing steps and values to apply
+    '''
 
     # apply transformations
     transformed_image = transforms(img).unsqueeze(0) # unsqueeze adds a dim so the shape is now (1, 3, img_size, img_size)
@@ -73,6 +101,14 @@ def transform_and_extract(img, model, transforms):
 
 
 def features_from_dataset(dataset, model, transforms):
+    '''
+    Extract image embeddings from all images in dataset
+
+    Args:
+        - dataset: huggingface dataset with images
+        - model: pretrained timm model
+        - transforms: preprocessing steps and values
+    '''
 
     # initialize empty list
     embeddings = []
@@ -86,6 +122,15 @@ def features_from_dataset(dataset, model, transforms):
     return embeddings
 
 def add_feature_column(dataset, embeddings, colname, new_data_name):
+    '''
+    Add column to dataset with embeddings
+
+    Args:
+        - dataset: huggingface dataset with images
+        - embeddings: list of embeddings for all images
+        - colname: what to call the embedding column
+        - new_data_name: What to call the new dataset with embedding column
+    '''
 
     # add embeddings to data
     new_dataset = dataset.add_column(colname, embeddings)

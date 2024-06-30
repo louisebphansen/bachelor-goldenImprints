@@ -25,6 +25,13 @@ def argument_parser():
 
 def load_iter_hf_data(dataset_name):
 
+    '''
+    Load a dataset from Huggingface Hub and save locally
+
+    Args:
+        - dataset_name: name of dataset from Hugginface Hub
+    '''
+
     # load dataset from the hub
     hf_data = datasets.load_dataset(dataset_name, split='train', streaming=True)
 
@@ -38,6 +45,14 @@ def load_iter_hf_data(dataset_name):
     return ds
 
 def split_data(ds, name, seed):
+    '''
+    Split data into train, test and validation splits
+
+    Args:
+        - ds: saved huggingface dataset
+        - name: prefix of saved dataset splits (e.g., 'WikiArt' will save datasets WikiArt_train, WikiArt_test etc.)
+        - seed: set seed to ensure reproducability
+    '''
 
     # split data into train and test
     ds_split = ds.train_test_split(test_size=0.2, seed=seed)
