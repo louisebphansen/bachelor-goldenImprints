@@ -45,6 +45,6 @@ To run the entire analysis with predefined arguments, run:
 bash run.sh
 ```
 
-This first downloads the WikiArt dataset from HuggingFace (https://huggingface.co/datasets/huggan/wikiart). Next,  different pretrained models from the ```timm``` library are used to extract embeddings from the dataset. Finally, seperate classification models are fit for each models for the three features of the WikiArt dataset, i.e., genre, style and artist. 
+This first downloads the WikiArt dataset from HuggingFace (https://huggingface.co/datasets/huggan/wikiart). Next,  different pretrained models from the ```timm``` library are used to extract embeddings from the dataset. Finally, seperate classification models are fit for each model for the three features of the WikiArt dataset, i.e., genre, style and artist. 
 
-**NB: Due to the size of the dataset and the number of models, running the entire analysis will take several days, depending on your computation power.
+**NB: Due to the size of the dataset and the number of models, running the entire analysis will take several days, depending on your compute power.**
